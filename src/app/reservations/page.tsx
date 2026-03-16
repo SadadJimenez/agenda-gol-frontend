@@ -48,7 +48,9 @@ export default function MyReservationsPage() {
       setMessage({ text: 'Reserva eliminada con éxito', type: 'success' });
       fetchReservations();
     } catch (err: any) {
-      setMessage({ text: err.response?.data?.detail || 'Error en microservicio local', type: 'danger' });
+      const detail = err.response?.data?.detail;
+      const errorMsg = Array.isArray(detail) ? detail[0]?.msg : (typeof detail === 'string' ? detail : 'Error en microservicio local');
+      setMessage({ text: errorMsg, type: 'danger' });
     } finally {
       setCancellingId(null);
     }

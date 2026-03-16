@@ -82,10 +82,12 @@ export default function FieldDetailPage() {
         notes: "Reserva B2C"
       });
       
-      setMessage({ text: 'Reservado.', type: 'success' });
+      setMessage({ text: 'Reservada con éxito.', type: 'success' });
       setTimeout(() => router.push('/reservations'), 2000);
     } catch (err: any) {
-      setMessage({ text: err.response?.data?.detail || 'Error al completar', type: 'danger' });
+      const detail = err.response?.data?.detail;
+      const errorMsg = Array.isArray(detail) ? detail[0]?.msg : (typeof detail === 'string' ? detail : 'Error al completar la reserva');
+      setMessage({ text: errorMsg, type: 'danger' });
     } finally {
       setBookingLoading(false);
     }
