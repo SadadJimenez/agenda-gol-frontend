@@ -52,7 +52,7 @@ export default function FieldDetailPage() {
       if (!date || !field) return;
       try {
         const res = await fieldsApi.get(`/${id}/availability?date=${date}`);
-        setAvailableSlots(Array.isArray(res.data) ? res.data : res.data?.available_slots || []);
+        setAvailableSlots(res.data.available_slots || []);
         setSelectedTime(''); // reset on date change
       } catch (err) {
         console.error(err);
