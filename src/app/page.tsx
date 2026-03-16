@@ -15,7 +15,7 @@ export default function Home() {
           style={{ maxWidth: '700px' }}
         >
           <div className="badge badge-secondary mb-4" style={{ borderRadius: '4px' }}>
-            Plataforma B2C - v1.0
+            Prueba Técnica - Naowee
           </div>
           <h1 style={{ fontSize: '3.5rem', letterSpacing: '-0.04em', lineHeight: '1.05', marginBottom: '1.5rem' }}>
             Reserva una cancha. <br />
