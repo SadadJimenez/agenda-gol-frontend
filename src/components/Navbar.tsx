@@ -60,7 +60,7 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 border" style={{ padding: '4px 12px', borderLeft: '1px solid var(--border)', marginLeft: '8px' }}>
-                <span className="text-sm font-medium">{user?.first_name || user?.username}</span>
+                <span className="text-sm font-medium">{(user as any)?.first_name || (user as any)?.username || 'Usuario'}</span>
               </div>
               <button onClick={logout} className="text-muted text-sm flex items-center gap-2" title="Cerrar sesión">
                 <LogOut size={16} /> Salir
