@@ -9,10 +9,10 @@ import { format } from 'date-fns';
 interface Reservation {
   id: string;
   field_id: string;
-  field_name?: string; // We might need to fetch field names or backend provides
+  field_name?: string;
   start_time: string;
   duration_hours: number;
-  status: string; // 'active', 'cancelled', 'completed'
+  status: string;
 }
 
 export default function MyReservationsPage() {
@@ -31,53 +31,53 @@ export default function MyReservationsPage() {
       const data = Array.isArray(res.data) ? res.data : res.data?.reservations || [];
       setReservations(data);
     } catch (err: any) {
-      setMessage({ text: 'Error al cargar tus reservas', type: 'danger' });
+      setMessage({ text: 'Error de red - No se pudo conectar.', type: 'danger' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = async (id: string) => {
-    if (!confirm('¿Estás seguro de cancelar esta reserva?')) return;
+    if (!confirm('Esta acción no se puede deshacer. ¿Seguro?')) return;
     
     setCancellingId(id);
     try {
       await reservationsApi.post(`/${id}/cancel`, {
         reason: "Cancelado por el usuario"
       });
-      setMessage({ text: 'Reserva cancelada con éxito', type: 'success' });
+      setMessage({ text: 'Reserva eliminada con éxito', type: 'success' });
       fetchReservations();
     } catch (err: any) {
-      setMessage({ text: err.response?.data?.detail || 'Error al cancelar la reserva', type: 'danger' });
+      setMessage({ text: err.response?.data?.detail || 'Error en microservicio local', type: 'danger' });
     } finally {
       setCancellingId(null);
     }
   };
 
-  if (loading) return <div className="flex-center" style={{ minHeight: '50vh' }}>Cargando tus reservas...</div>;
+  if (loading) return <div className="flex justify-center mt-8 text-sm text-muted">Obteniendo tus reservas...</div>;
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <div className="flex justify-between items-center mb-4">
-        <h2>Mis Reservas</h2>
-        <div className="badge badge-info gap-2 flex items-center">
-          <Calendar size={16} /> {reservations.length} Reservas
+    <div className="container mt-8" style={{ maxWidth: '800px' }}>
+      <div className="flex justify-between items-center mb-6 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+        <h2 style={{ fontSize: '1.25rem' }}>Mis Reservas</h2>
+        <div className="badge badge-secondary gap-2 text-xs">
+          {reservations.length} Registradas
         </div>
       </div>
 
       {message.text && (
-        <div className={`badge badge-${message.type} w-full text-center`} style={{ padding: '1rem', marginBottom: '1.5rem', display: 'block' }}>
+        <div className={`badge badge-${message.type} w-full justify-center text-sm`} style={{ padding: '0.75rem', marginBottom: '1.5rem', borderRadius: '4px' }}>
           {message.text}
         </div>
       )}
 
       {reservations.length === 0 ? (
-        <div className="glass-panel text-center text-muted w-full" style={{ padding: '4rem 2rem' }}>
-          <Calendar size={48} color="var(--border)" style={{ margin: '0 auto 1rem' }} />
-          No tienes reservas actualmente.
+        <div className="card text-center text-muted w-full flex flex-col items-center justify-center" style={{ padding: '4.5rem 2rem' }}>
+          <Calendar size={32} color="var(--border)" style={{ margin: '0 auto 1rem' }} />
+          <p className="text-sm">Aún no tienes horarios agendados.</p>
         </div>
       ) : (
-        <div className="flex" style={{ flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="flex flex-col gap-4">
           {reservations.map((res, i) => {
              const statusColor = res.status === 'activa' || res.status === 'active' || res.status === 'CONFIRMED' 
                 ? 'success' 
@@ -86,48 +86,48 @@ export default function MyReservationsPage() {
              return (
               <motion.div 
                 key={res.id}
-                className="glass-panel flex justify-between"
-                style={{ padding: '1.5rem', alignItems: 'center', opacity: statusColor === 'danger' ? 0.7 : 1 }}
+                className="card flex justify-between items-center"
+                style={{ padding: '1.25rem', opacity: statusColor === 'danger' ? 0.6 : 1 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.05, duration: 0.2 }}
               >
-                <div className="flex gap-4">
-                  <div className="flex-center" style={{ 
-                    width: '60px', height: '60px', borderRadius: 'var(--radius)', 
+                <div className="flex gap-4 items-center">
+                  <div className="flex items-center justify-center" style={{ 
+                    width: '40px', height: '40px', borderRadius: '6px', 
                     background: `var(--${statusColor})`, color: 'white', 
-                    opacity: 0.2, position: 'relative' 
+                    opacity: 0.8, fill: 'currentColor'
                   }}>
-                    {statusColor === 'success' && <CheckCircle style={{ position: 'absolute' }} />}
-                    {statusColor === 'danger' && <XCircle style={{ position: 'absolute' }} />}
-                    {statusColor === 'warning' && <Clock style={{ position: 'absolute' }} />}
+                    {statusColor === 'success' && <CheckCircle size={18} />}
+                    {statusColor === 'danger' && <XCircle size={18} />}
+                    {statusColor === 'warning' && <Clock size={18} />}
                   </div>
                   <div>
-                    <h3 style={{ margin: 0, marginBottom: '0.25rem' }}>
-                      Cancha #{res.field_id} {res.field_name && `- ${res.field_name}`}
+                    <h3 className="font-semibold text-sm mb-1">
+                      Cancha #{res.field_id} {res.field_name && `• ${res.field_name}`}
                     </h3>
-                    <div className="text-muted flex items-center gap-2">
-                      <Clock size={16} /> 
-                      {res.start_time ? format(new Date(res.start_time), 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}
-                      <span style={{ margin: '0 0.5rem' }}>•</span> 
-                      {res.duration_hours} hora(s)
+                    <div className="text-muted text-xs flex items-center gap-2">
+                      <Clock size={12} /> 
+                      {res.start_time ? format(new Date(res.start_time), 'dd/MM/yyyy HH:mm') : '--/--/----'}
+                      <span style={{ margin: '0 0.25rem' }}>|</span> 
+                      {res.duration_hours} hr(s)
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
-                  <span className={`badge badge-${statusColor}`} style={{ textTransform: 'uppercase' }}>
+                <div className="flex items-center gap-4">
+                  <span className={`badge badge-${statusColor}`} style={{ textTransform: 'uppercase', fontSize: '0.65rem' }}>
                     {res.status}
                   </span>
                   
                   {(statusColor === 'success' || res.status === 'active') && (
                     <button 
                       className="btn btn-outline" 
-                      style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', color: 'var(--danger)', borderColor: 'var(--border)' }}
                       onClick={() => handleCancel(res.id)}
                       disabled={cancellingId === res.id}
                     >
-                      {cancellingId === res.id ? 'Cancelando...' : 'Cancelar Reserva'}
+                      {cancellingId === res.id ? '...' : 'Anular'}
                     </button>
                   )}
                 </div>

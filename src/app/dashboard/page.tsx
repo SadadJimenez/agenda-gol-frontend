@@ -40,72 +40,74 @@ export default function DashboardPage() {
 
   if (!isAuthenticated || user?.role !== 'admin') return null;
 
-  if (loading) return <div className="flex-center" style={{ minHeight: '50vh' }}>Cargando Panel Administrativo...</div>;
+  if (loading) return <div className="text-sm mt-8 text-center text-muted">Construyendo Dashboard...</div>;
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <div className="flex justify-between items-center mb-4">
-        <h2>Dashboard Administrativo</h2>
-        <div className="badge badge-info gap-2 flex items-center">
-          <Settings2 size={16} /> Admin Mode
+    <div className="container mt-8" style={{ maxWidth: '1000px' }}>
+      <div className="flex justify-between items-center mb-8 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+        <h2 style={{ fontSize: '1.25rem' }}>Metrics Panel</h2>
+        <div className="badge badge-secondary gap-2 flex items-center text-xs">
+          <Settings2 size={12} /> Root Access
         </div>
       </div>
 
-      <div className="grid grid-cols-4" style={{ gap: '1.5rem', marginBottom: '3rem' }}>
+      <div className="grid grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Usuarios Registrados', value: globalStats?.total_users || 0, icon: <Users size={24} color="var(--primary)" /> },
-          { label: 'Canchas Activas', value: globalStats?.total_fields || 0, icon: <Activity size={24} color="var(--secondary)" /> },
-          { label: 'Total Reservas', value: globalStats?.total_reservations || 0, icon: <BarChart size={24} color="var(--accent)" /> },
-          { label: 'Ingresos Estimados', value: `S/ ${globalStats?.total_revenue || 0}`, icon: <DollarSign size={24} color="var(--danger)" /> }
+          { label: 'Usuarios', value: globalStats?.total_users || 0, icon: <Users size={16} /> },
+          { label: 'Canchas Activas', value: globalStats?.total_fields || 0, icon: <Activity size={16} /> },
+          { label: 'Total Reservas', value: globalStats?.total_reservations || 0, icon: <BarChart size={16} /> },
+          { label: 'Ingresos Totales', value: `S/ ${globalStats?.total_revenue || 0}`, icon: <DollarSign size={16} /> }
         ].map((stat, i) => (
           <motion.div 
             key={i}
-            className="glass-panel text-center"
-            style={{ padding: '2rem 1.5rem' }}
-            initial={{ opacity: 0, scale: 0.9 }}
+            className="card flex flex-col justify-between"
+            style={{ padding: '1.25rem' }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1, duration: 0.3 }}
+            transition={{ delay: i * 0.05, duration: 0.2 }}
           >
-            <div className="flex-center" style={{ marginBottom: '1rem', background: 'var(--border)', width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 1.5rem' }}>
+            <div className="flex justify-between items-start mb-4 text-muted">
+              <span className="text-xs font-semibold uppercase tracking-wider">{stat.label}</span>
               {stat.icon}
             </div>
-            <h3 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--foreground)' }}>{stat.value}</h3>
-            <span className="text-muted" style={{ fontSize: '0.9rem', fontWeight: 600 }}>{stat.label}</span>
+            <h3 style={{ fontSize: '1.75rem', fontWeight: 600, color: 'var(--foreground)' }}>{stat.value}</h3>
           </motion.div>
         ))}
       </div>
 
-      <h3>Estadísticas por Cancha</h3>
+      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">Métricas por Cancha</h3>
       
-      <div className="grid grid-cols-3" style={{ gap: '1.5rem' }}>
+      <div className="grid grid-cols-3 gap-4">
         {fieldStats.length === 0 ? (
-          <div className="text-muted text-center w-full" style={{ gridColumn: 'span 3', padding: '2rem' }}>
-            No hay estadísticas de canchas disponibles
+          <div className="card text-muted text-center w-full flex items-center justify-center text-sm" style={{ gridColumn: 'span 3', padding: '3rem' }}>
+            No hay data histórica registrada aún.
           </div>
         ) : (
           fieldStats.map((fs, i) => (
             <motion.div 
               key={fs.field_id || i}
-              className="glass-panel"
-              style={{ padding: '1.5rem' }}
+              className="card"
+              style={{ padding: '1.25rem' }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + i * 0.1 }}
+              transition={{ delay: 0.2 + i * 0.05, duration: 0.2 }}
             >
-              <h4 style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
-                {fs.field_name || `Cancha #${fs.field_id}`}
+              <h4 className="font-semibold text-sm mb-4 pb-2" style={{ borderBottom: '1px solid var(--border)' }}>
+                {fs.field_name || `ID #${fs.field_id}`}
               </h4>
-              <div className="flex justify-between items-center mt-4">
-                <span className="text-muted">Reservas</span>
-                <span style={{ fontWeight: 'bold' }}>{fs.total_reservations || 0}</span>
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-muted">Horas Jugadas</span>
-                <span style={{ fontWeight: 'bold' }}>{fs.total_hours || 0} h</span>
-              </div>
-              <div className="flex justify-between items-center mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                <span className="text-muted">Ingresos</span>
-                <span style={{ color: 'var(--secondary)', fontWeight: 'bold' }}>S/ {fs.total_revenue || 0}</span>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted">Tickets</span>
+                  <span className="font-medium">{fs.total_reservations || 0}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted">Desgaste</span>
+                  <span className="font-medium">{fs.total_hours || 0} hrs</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 mt-2" style={{ borderTop: '1px dashed var(--border)' }}>
+                  <span className="text-muted">Gross</span>
+                  <span className="font-semibold" style={{ color: 'var(--foreground)' }}>S/ {fs.total_revenue || 0}</span>
+                </div>
               </div>
             </motion.div>
           ))

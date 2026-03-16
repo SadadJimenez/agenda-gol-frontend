@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { motion } from 'framer-motion';
-import { LogIn } from 'lucide-react';
+import { Hexagon } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -20,7 +20,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Por favor, ingresa correo y contraseña.');
+      setError('Required fields are missing.');
       return;
     }
     
@@ -35,7 +35,6 @@ export default function LoginPage() {
       
       const token = res.data.access_token;
       
-      // Obtener los datos del usuario actual
       const meRes = await authApi.get('/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -43,39 +42,37 @@ export default function LoginPage() {
       setAuth(meRes.data, token);
       router.push('/fields');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Correo o contraseña incorrectos');
+      setError(err.response?.data?.detail || 'Credenciales inválidas');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex-center" style={{ minHeight: '60vh' }}>
+    <div className="flex justify-center" style={{ minHeight: 'calc(100vh - 120px)', alignItems: 'center' }}>
       <motion.div 
-        className="glass-panel w-full" 
-        style={{ maxWidth: '400px', padding: '2rem' }}
-        initial={{ opacity: 0, scale: 0.95 }}
+        className="w-full" 
+        style={{ maxWidth: '380px' }}
+        initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.2 }}
       >
-        <div className="text-center mb-4">
-          <div className="flex-center" style={{ marginBottom: '1rem' }}>
-            <div style={{ background: 'var(--primary)', padding: '1rem', borderRadius: 'var(--radius-full)' }}>
-              <LogIn color="white" size={32} />
-            </div>
+        <div className="flex flex-col items-center mb-8 text-center">
+          <div className="mb-6 flex items-center justify-center border" style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--surface)' }}>
+            <Hexagon size={20} color="var(--foreground)" />
           </div>
-          <h2>Iniciar Sesión</h2>
-          <p className="text-muted">Ingresa a tu cuenta de AgendaGol</p>
+          <h2 style={{ fontSize: '1.25rem' }}>Iniciar sesión</h2>
+          <p className="text-muted text-sm mt-2">Ingresa tus credenciales para continuar</p>
         </div>
 
         {error && (
-          <div className="badge badge-danger w-full text-center" style={{ padding: '0.75rem', marginBottom: '1rem', display: 'block' }}>
+          <div className="badge badge-danger w-full justify-center mb-6" style={{ padding: '0.625rem', borderRadius: 'var(--radius-sm)' }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className="card" style={{ padding: '2rem' }}>
+          <div className="form-group gap-2">
             <label className="form-label">Correo Electrónico</label>
             <input 
               type="email" 
@@ -87,8 +84,11 @@ export default function LoginPage() {
             />
           </div>
           
-          <div className="form-group">
-            <label className="form-label">Contraseña</label>
+          <div className="form-group gap-2 mt-4">
+            <label className="form-label flex justify-between">
+              Contraseña
+              <span className="text-muted" style={{ fontWeight: 400, fontSize: '0.75rem' }}>¿Olvidada?</span>
+            </label>
             <input 
               type="password" 
               className="input" 
@@ -99,13 +99,16 @@ export default function LoginPage() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-full" style={{ padding: '1rem' }} disabled={loading}>
-            {loading ? 'Ingresando...' : 'Ingresar'}
+          <button type="submit" className="btn btn-primary w-full mt-6" style={{ padding: '0.625rem' }} disabled={loading}>
+            {loading ? 'Verificando...' : 'Entrar'}
           </button>
         </form>
         
-        <div className="text-center mt-4">
-          <p className="text-muted">¿No tienes cuenta? <Link href="/auth/register" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Regístrate</Link></p>
+        <div className="text-center mt-6 text-sm">
+          <span className="text-muted">¿No tienes cuenta?</span>{' '}
+          <Link href="/auth/register" style={{ color: 'var(--foreground)', fontWeight: 500, borderBottom: '1px solid var(--foreground)' }}>
+            Crear cuenta
+          </Link>
         </div>
       </motion.div>
     </div>

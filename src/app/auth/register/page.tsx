@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { motion } from 'framer-motion';
-import { UserPlus } from 'lucide-react';
+import { Hexagon } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RegisterPage() {
@@ -35,7 +35,7 @@ export default function RegisterPage() {
       // 1. Register User
       await authApi.post('/register', {
         ...formData,
-        role: 'user' // Default to user 
+        role: 'user'
       });
       
       // 2. Auto-login immediately
@@ -46,7 +46,6 @@ export default function RegisterPage() {
       
       const token = res.data.access_token;
       
-      // Get User Data
       const meRes = await authApi.get('/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -54,7 +53,7 @@ export default function RegisterPage() {
       setAuth(meRes.data, token);
       router.push('/fields');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Error al completar el registro. Verifica los datos.');
+      setError(err.response?.data?.detail || 'Error en registro. Verifica tus datos.');
     } finally {
       setLoading(false);
     }
@@ -65,45 +64,43 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex-center" style={{ minHeight: '60vh', padding: '2rem 0' }}>
+    <div className="flex justify-center" style={{ minHeight: 'calc(100vh - 120px)', alignItems: 'center' }}>
       <motion.div 
-        className="glass-panel w-full" 
-        style={{ maxWidth: '450px', padding: '2rem' }}
-        initial={{ opacity: 0, scale: 0.95 }}
+        className="w-full" 
+        style={{ maxWidth: '380px' }}
+        initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.2 }}
       >
-        <div className="text-center mb-4">
-          <div className="flex-center" style={{ marginBottom: '1rem' }}>
-            <div style={{ background: 'var(--primary)', padding: '1rem', borderRadius: 'var(--radius-full)' }}>
-              <UserPlus color="white" size={32} />
-            </div>
+        <div className="flex flex-col items-center mb-8 text-center">
+          <div className="mb-6 flex items-center justify-center border" style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--surface)' }}>
+            <Hexagon size={20} color="var(--foreground)" />
           </div>
-          <h2>Registrarse</h2>
-          <p className="text-muted">Crea una cuenta para reservar canchas</p>
+          <h2 style={{ fontSize: '1.25rem' }}>Registro de cuenta</h2>
+          <p className="text-muted text-sm mt-2">Crea tu usuario para empezar a reservar</p>
         </div>
 
         {error && (
-          <div className="badge badge-danger w-full text-center" style={{ padding: '0.75rem', marginBottom: '1rem', display: 'block' }}>
+          <div className="badge badge-danger w-full justify-center mb-6" style={{ padding: '0.625rem', borderRadius: 'var(--radius-sm)' }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Nombre de Usuario</label>
+        <form onSubmit={handleSubmit} className="card" style={{ padding: '2rem' }}>
+          <div className="form-group gap-2">
+            <label className="form-label">Username</label>
             <input 
               name="username"
               type="text" 
               className="input" 
-              placeholder="juanperez"
+              placeholder="juanxyz"
               value={formData.username}
               onChange={handleChange}
               required
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group gap-2 mt-4">
             <label className="form-label">Correo Electrónico</label>
             <input 
               name="email"
@@ -116,7 +113,7 @@ export default function RegisterPage() {
             />
           </div>
           
-          <div className="form-group">
+          <div className="form-group gap-2 mt-4">
             <label className="form-label">Contraseña</label>
             <input 
               name="password"
@@ -129,13 +126,16 @@ export default function RegisterPage() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-full" style={{ padding: '1rem', marginTop: '1rem' }} disabled={loading}>
-            {loading ? 'Procesando...' : 'Crear Cuenta'}
+          <button type="submit" className="btn btn-primary w-full mt-6" style={{ padding: '0.625rem' }} disabled={loading}>
+            {loading ? 'Creando...' : 'Crear Cuenta'}
           </button>
         </form>
         
-        <div className="text-center mt-4">
-          <p className="text-muted">¿Ya tienes cuenta? <Link href="/auth/login" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Ingresa aquí</Link></p>
+        <div className="text-center mt-6 text-sm">
+          <span className="text-muted">¿Ya tienes cuenta?</span>{' '}
+          <Link href="/auth/login" style={{ color: 'var(--foreground)', fontWeight: 500, borderBottom: '1px solid var(--foreground)' }}>
+            Ingresa aquí
+          </Link>
         </div>
       </motion.div>
     </div>

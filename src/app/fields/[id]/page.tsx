@@ -73,76 +73,77 @@ export default function FieldDetailPage() {
 
     setBookingLoading(true);
     try {
-      // Formatear a la fecha ISO que espera el backend
-      // start_time: "YYYY-MM-DDTHH:MM:SS"
       const startTimeISO = `${date}T${selectedTime.length === 5 ? selectedTime + ':00' : selectedTime}`;
       
       await reservationsApi.post('/', {
         field_id: parseInt(id as string),
         start_time: startTimeISO,
         duration_hours: duration,
-        notes: "Reserva desde Frontend"
+        notes: "Reserva B2C"
       });
       
-      setMessage({ text: '¡Reserva completada con éxito!', type: 'success' });
+      setMessage({ text: 'Reservado.', type: 'success' });
       setTimeout(() => router.push('/reservations'), 2000);
     } catch (err: any) {
-      setMessage({ text: err.response?.data?.detail || 'Error al realizar la reserva', type: 'danger' });
+      setMessage({ text: err.response?.data?.detail || 'Error al completar', type: 'danger' });
     } finally {
       setBookingLoading(false);
     }
   };
 
-  if (loading) return <div className="flex-center" style={{ minHeight: '50vh' }}>Cargando detalles...</div>;
-  if (!field) return <div className="flex-center badge badge-danger container text-center">No se encontró la cancha.</div>;
+  if (loading) return <div className="flex justify-center mt-8 text-sm text-muted">Cargando...</div>;
+  if (!field) return <div className="badge badge-danger container text-center mt-8">Cancha no encontrada.</div>;
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <div className="grid grid-cols-2" style={{ gap: '3rem', alignItems: 'start' }}>
+    <div className="mt-8 container" style={{ maxWidth: '900px' }}>
+      <div className="grid grid-cols-2 gap-8 items-start">
         <motion.div 
-          className="glass-panel" 
-          style={{ padding: '2rem' }}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2 }}
         >
-          <div style={{ background: 'var(--border)', height: '250px', borderRadius: 'var(--radius)', marginBottom: '1.5rem', backgroundImage: 'url(https://images.unsplash.com/photo-1575361204481-482270bb3f21)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-          <h1>{field.name}</h1>
-          <p className="text-muted mt-2 mb-4" style={{ lineHeight: '1.6' }}>{field.description}</p>
+          <div style={{ background: 'var(--surface)', height: '220px', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', backgroundImage: 'url(https://images.unsplash.com/photo-1575361204481-482270bb3f21)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05)' }} />
           
-          <div className="grid grid-cols-2" style={{ gap: '1rem', marginTop: '2rem' }}>
-            <div className="flex items-center gap-2">
-              <MapPin color="var(--primary)" /> <span>{field.location}</span>
+          <div className="flex items-center justify-between mb-2">
+            <h1 style={{ fontSize: '1.5rem', letterSpacing: '-0.02em' }}>{field.name}</h1>
+            <span className="badge badge-secondary" style={{ padding: '4px 8px', borderRadius: '4px' }}>S/ {field.price_per_hour}/hr</span>
+          </div>
+
+          <p className="text-muted text-sm mt-2 mb-6" style={{ lineHeight: '1.6' }}>{field.description || "Agenda y asegura tu campo sintético de forma rápida y sencilla."}</p>
+          
+          <div className="flex flex-col gap-3 font-medium text-sm border-t pt-4 border-b pb-4" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex items-center gap-3">
+              <MapPin size={16} className="text-muted" /> <span>{field.location}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Users color="var(--primary)" /> <span>Capacidad: {field.capacity}</span>
+            <div className="flex items-center gap-3">
+              <Users size={16} className="text-muted" /> <span>Hasta {field.capacity} jugadores</span>
             </div>
-            <div className="flex items-center gap-2">
-              <DollarSign color="var(--secondary)" /> <span style={{ fontWeight: 'bold' }}>S/ {field.price_per_hour}/hr</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock color="var(--accent)" /> <span>{field.opening_time} - {field.closing_time}</span>
+            <div className="flex items-center gap-3">
+              <Clock size={16} className="text-muted" /> <span>Horario: {field.opening_time} — {field.closing_time}</span>
             </div>
           </div>
         </motion.div>
 
         <motion.div 
-          className="glass-panel" 
-          style={{ padding: '2rem' }}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
+          className="card" 
+          style={{ padding: '1.5rem', borderRadius: 'var(--radius)' }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          <h2>Reserva tu Horario</h2>
+          <div className="flex items-center justify-between mb-6 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <h2 style={{ fontSize: '1.125rem' }}>Fecha y Hora</h2>
+            <CalendarIcon size={16} className="text-muted" />
+          </div>
           
           {message.text && (
-            <div className={`badge badge-${message.type} w-full text-center`} style={{ padding: '1rem', marginBottom: '1.5rem', display: 'block' }}>
+            <div className={`badge badge-${message.type} w-full text-center mt-2 mb-4`} style={{ padding: '0.625rem', borderRadius: '4px', display: 'block' }}>
               {message.text}
             </div>
           )}
 
-          <div className="form-group">
-            <label className="form-label flex items-center gap-2">
-              <CalendarIcon size={16} /> Selecciona una Fecha
-            </label>
+          <div className="form-group gap-2 mb-4">
+            <label className="form-label text-xs uppercase" style={{ letterSpacing: '0.05em' }}>Fecha de reserva</label>
             <input 
               type="date" 
               className="input" 
@@ -152,22 +153,21 @@ export default function FieldDetailPage() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Horarios Disponibles</label>
-            <div className="flex" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="form-group gap-2 mb-4">
+            <label className="form-label text-xs uppercase" style={{ letterSpacing: '0.05em' }}>Horarios Disponibles</label>
+            <div className="grid grid-cols-4 gap-2">
               {availableSlots.length === 0 ? (
-                <span className="text-muted text-center w-full" style={{ padding: '1rem' }}>No hay horarios disponibles</span>
+                <span className="text-muted text-sm col-span-4" style={{ gridColumn: 'span 4' }}>Escoge otra fecha con disponibilidad.</span>
               ) : (
                 availableSlots.map((slot, i) => {
                   const slotStr = typeof slot === 'string' ? slot : slot.start_time || slot.time;
-                  // Si el backend devuelve algo como "10:00:00", lo cortamos para mostrar
                   const visualSlot = slotStr.slice(0, 5);
                   
                   return (
                     <button 
                       key={i}
                       className={`btn ${selectedTime === slotStr ? 'btn-primary' : 'btn-outline'}`}
-                      style={{ padding: '0.5rem 1rem' }}
+                      style={{ padding: '0.5rem', borderRadius: '4px' }}
                       onClick={() => setSelectedTime(slotStr)}
                     >
                       {visualSlot}
@@ -178,38 +178,41 @@ export default function FieldDetailPage() {
             </div>
           </div>
 
-          <div className="form-group mt-4">
-            <label className="form-label">Duración</label>
-            <div className="flex gap-4">
+          <div className="form-group gap-2 mb-6">
+            <label className="form-label text-xs uppercase" style={{ letterSpacing: '0.05em' }}>Módulo de Uso</label>
+            <div className="grid grid-cols-2 gap-2">
               <button 
                 className={`btn w-full ${duration === 1 ? 'btn-secondary' : 'btn-outline'}`}
+                style={{ borderRadius: '4px' }}
                 onClick={() => setDuration(1)}
               >
-                1 Hora
+                1 Hr
               </button>
               <button 
                 className={`btn w-full ${duration === 2 ? 'btn-secondary' : 'btn-outline'}`}
+                style={{ borderRadius: '4px' }}
                 onClick={() => setDuration(2)}
               >
-                2 Horas
+                2 Hrs
               </button>
             </div>
           </div>
 
-          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-            <div className="flex justify-between items-center mb-4 text-muted">
-              <span>Total a pagar:</span>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)' }}>
+          <div className="pt-4 flex flex-col gap-4" style={{ borderTop: '1px solid var(--border)' }}>
+            <div className="flex justify-between items-center text-sm font-medium">
+              <span>Total final</span>
+              <span style={{ fontSize: '1.25rem', color: 'var(--foreground)' }}>
                 S/ {field.price_per_hour * duration}
               </span>
             </div>
+            
             <button 
-              className="btn btn-primary w-full gap-2" 
-              style={{ padding: '1rem 1.5rem', fontSize: '1.1rem' }}
+              className="btn btn-primary w-full" 
+              style={{ padding: '0.75rem' }}
               onClick={handleBook}
               disabled={bookingLoading}
             >
-              <CalendarIcon /> {bookingLoading ? 'Reservando...' : 'Confirmar Reserva'}
+              {bookingLoading ? 'Agendando...' : 'Confirmar'}
             </button>
           </div>
         </motion.div>
